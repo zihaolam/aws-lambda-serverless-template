@@ -1,30 +1,3 @@
-# AWS Lambda + Serverless Template
-
-Built with Serverless
-
-## Setup Locally
-
-### Recommended (Make sure docker is running)
-
-&nbsp;&nbsp;`git clone git@github.com:zihaolam/aws-lambda-template.git`
-
-&nbsp;&nbsp; `yarn install`
-
-&nbsp;&nbsp; `yarn db:create:local`
-&nbsp;&nbsp; This creates a local dynamodb single table based on BaseModel class
-
-## Start locally
-
-### Recommended (Use pipenv to manage python dependencies)
-
-&nbsp;&nbsp;`pipenv install`
-
-&nbsp;&nbsp;`pipenv shell`
-
-&nbsp;&nbsp;`yarn db:dev`
-
-&nbsp;&nbsp;`yarn dev`
-
 # AWS Lambda + Dynamodb + Serverless Stack Template
 
 ```
