@@ -1,0 +1,96 @@
+service: LEAN-Platform
+
+package:
+    individually: true
+    include:
+        - ./.env.prod
+        - ./.env.staging
+        - ./models/**
+        - ./exceptions/**
+        - ./routes/**
+        - ./schemas/**
+        - ./services/**
+        - ./utils/**
+        - ./mocks/**
+        - ./config.py
+        - ./scopes.py
+    exclude:
+        - ./**
+
+useDotenv: True
+
+provider:
+    name: aws
+    profile: ${opt:aws-profile, "lean"}
+    region: ap-southeast-1
+    stage: ${env:STAGE}
+    runtime: python3.8
+    memorySize: 128
+    timeout: 15
+    environment:
+        STAGE: ${self:provider.stage}
+        REGION: ${self:provider.region}
+    layers:
+        - !Ref PythonRequirementsLambdaLayer
+
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                      - "dynamodb:*"
+                  Resource:
+                      - "*"
+
+    httpApi:
+        cors:
+            allowedOrigins:
+                - https://db4l9ed329577.cloudfront.net
+                - https://app.lean.social
+                - http://localhost:3000
+            allowedHeaders:
+                - Content-Type
+                - Authorization
+            allowedMethods:
+                - "*"
+            allowCredentials: true
+            maxAge: 12000 # In seconds
+
+plugins:
+    - serverless-python-requirements
+    - serverless-offline
+    - serverless-plugin-ifelse
+
+custom:
+    pythonRequirements:
+        usePipenv: false
+        layer: true
+        useDownloadCache: true
+        useStaticCache: true
+    serverless-offline:
+        httpPort: 8081
+    serverlessIfElse:
+        - If: '"${self:provider.stage}" == "prod"'
+          Exclude:
+              - functions.GetAccessToken
+functions:
+    - ${file(routes/user/route_config.yml)}
+    - ${file(routes/auth/route_config.yml)}
+    - GetSwaggerDoc:
+          package:
+              include:
+                  - ./docs/**
+          handler: docs.swagger_ui_handler
+          events:
+              - httpApi:
+                    path: /docs
+                    method: get
+    - GetOpenApiSchema:
+          package:
+              include:
+                  - ./docs/**
+          handler: docs.openapi_handler
+          events:
+              - httpApi:
+                    path: /openapi.json
+                    method: get

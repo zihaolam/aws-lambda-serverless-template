@@ -1,0 +1,13 @@
+GetUserSelf:
+    handler: routes/user.get_self
+    events:
+        - httpApi:
+              path: /user/me
+              method: get
+
+UpdateUser:
+    handler: routes/user.update
+    events:
+        - httpApi:
+              path: /user
+              method: put
